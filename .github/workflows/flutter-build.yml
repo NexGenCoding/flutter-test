@@ -1,48 +1,32 @@
-name: Flutter Build
+name: Build Flutter Engine
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Flutter
+      - uses: actions/checkout@v2
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.3.3'
+          flutter-version: '3.10.0'  # Update to the correct Flutter version
+          channel: stable
 
-      - name: Print Flutter version
-        run: flutter --version
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Create minimal Flutter project
-        run: |
-          flutter create minimal_flutter_project
-          cd minimal_flutter_project
-          flutter pub get
+      - name: Build Flutter Engine for arm64-v8a
+        run: flutter build apk --release --target-platform=android-arm64
 
-      - name: Build APK for arm64 and armeabi-v7a
-        run: |
-          cd minimal_flutter_project
-          flutter build apk --release --target-platform android-arm,android-arm64
-
-      - name: Upload libflutter.so for arm64
+      - name: Build Flutter Engine for armeabi-v7a
+        run: flutter build apk --release --target-platform=android-arm
+      
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: libflutter_so_arm64
-          path: minimal_flutter_project/build/app/intermediates/merged_native_libs/release/out/lib/arm64-v8a/libflutter.so
-
-      - name: Upload libflutter.so for armeabi-v7a
-        uses: actions/upload-artifact@v2
-        with:
-          name: libflutter_so_armeabi_v7a
-          path: minimal_flutter_project/build/app/intermediates/merged_native_libs/release/out/lib/armeabi-v7a/libflutter.so
+          name: flutter-libs
+          path: build/app/outputs/flutter-apk/app-release.apk  # Adjust this path as needed

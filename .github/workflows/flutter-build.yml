@@ -32,7 +32,7 @@ jobs:
 
       - name: Build apk for arm64 and armeabi-v7a
         run: |
-          cd minimal_flutter_project
+          cd flutter_so
           flutter build apk --release --target-platform android-arm,android-arm64
 
       - name: Upload libflutter.so for arm64
